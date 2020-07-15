@@ -10,7 +10,7 @@ from main.singleton.singleton import Singleton
 @Singleton
 class QuantVolume:
 
-    def __init__(self):
+    def __init__(self) -> object:
         self.mock = False
 
         sns.set()

@@ -7,10 +7,11 @@ data = {'result': 'this is a test'}
 host = ('localhost', 8888)
 
 
-class Request(BaseHTTPRequestHandler):
+class RequestHandler(BaseHTTPRequestHandler):
     def do_GET(self):
-        quant = QuantVolume()
-        quant.calc_mock()
+        if '/' == self.path:
+            quant = QuantVolume()
+            quant.calc()
         self.send_response(200)
         self.send_header('Content-type', 'application/json')
         self.end_headers()
@@ -18,6 +19,6 @@ class Request(BaseHTTPRequestHandler):
 
 
 if __name__ == '__main__':
-    server = HTTPServer(host, Request)
+    server = HTTPServer(host, RequestHandler)
     print("Starting server, listen at: %s:%s" % host)
     server.serve_forever()
