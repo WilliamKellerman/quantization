@@ -2,9 +2,13 @@ import tushare as ts
 import pandas as pd
 import seaborn as sns
 import datetime
+from functools import lru_cache
+
+from main.singleton.singleton import Singleton
 
 
-class Quantization:
+@Singleton
+class QuantVolume:
 
     def __init__(self):
         self.mock = False
@@ -102,12 +106,14 @@ class Quantization:
 
         return days_ago, today
 
+    @lru_cache(maxsize=4000)
     def cal_stock_vol_rate(self, ts_code):
         """
         计算成交量比率
         :param ts_code: '600958.SH', String
         :return: price_rate, Float; vol_rate, Float
         """
+        print('{0},{1}-------->not in cache', id(self), id(ts_code))
         try:
             days_ago, today = self.init_day_range(30 * 12)
 
