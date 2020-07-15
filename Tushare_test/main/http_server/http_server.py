@@ -1,7 +1,7 @@
 from http.server import HTTPServer, BaseHTTPRequestHandler
 import json
 
-from main.quantization.volumn_acc import Quantization
+from main.quantization.quant_volume import QuantVolume
 
 data = {'result': 'this is a test'}
 host = ('localhost', 8888)
@@ -9,7 +9,7 @@ host = ('localhost', 8888)
 
 class Request(BaseHTTPRequestHandler):
     def do_GET(self):
-        quant = Quantization()
+        quant = QuantVolume()
         quant.calc_mock()
         self.send_response(200)
         self.send_header('Content-type', 'application/json')
