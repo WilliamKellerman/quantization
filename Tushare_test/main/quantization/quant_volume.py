@@ -13,6 +13,8 @@ class QuantVolume:
     def __init__(self) -> object:
         self.mock = False
 
+        self.data_his_month = 12
+
         sns.set()
 
         # 设置token，token为tushare网站注册时得到
@@ -94,7 +96,7 @@ class QuantVolume:
     @staticmethod
     def init_day_range(days):
         """
-        生成时间范围
+        生成时间范围，返回'%Y%m%d'格式
         :param days: Int
         :return: Tuple
         """
@@ -115,7 +117,7 @@ class QuantVolume:
         """
         print('{0},{1}-------->not in cache', id(self), id(ts_code))
         try:
-            days_ago, today = self.init_day_range(30 * 12)
+            days_ago, today = self.init_day_range(30 * self.data_his_month)
 
             # ts_code, trade_date, open, high, low, close, pre_close, change, pct_chg, vol, amount
             single_stock_df = ts.pro_bar(ts_code=ts_code, adj='qfq', start_date=days_ago, end_date=today)
@@ -141,7 +143,7 @@ class QuantVolume:
 
             vol_rate = vol_sum_pos / vol_sum_neg
 
-            vol_price_rate = price_rate / vol_rate
+            vol_price_rate = vol_rate / price_rate
 
         except BaseException as e:
             print("{0} has an exception: {1}".format(ts_code, e))
@@ -158,34 +160,34 @@ class QuantVolume:
         today = datetime.date.today()
         today = today.strftime('%Y-%m-%d')
         # filename = '~/Downloads/' + today + '.xls'
-        filename = today + '.xls'
+        filename = today + '-' + str(self.data_his_month) + 'm'
         if self.mock:
-            filename = today + '-mock.xls'
-
+            filename = today + '-mock'
+        filename = filename + '.xls'
         df.to_excel(excel_writer=filename, sheet_name='11')
 
     def calc(self):
-        full_stock_df = self.get_stock_list()
+        self.full_stock_df = self.get_stock_list()
 
         # 打上新股标识
-        full_stock_df['is_new'] = full_stock_df.list_date.map(self.is_new_stock)
+        self.full_stock_df['is_new'] = self.full_stock_df.list_date.map(self.is_new_stock)
 
         # 计算是否在高价位，阳量阴量比
-        for i, row in full_stock_df.iterrows():
+        for i, row in self.full_stock_df.iterrows():
             tup = self.cal_stock_vol_rate(row.ts_code)
-            full_stock_df.at[i, 'cur_price'] = tup[1]
-            full_stock_df.at[i, 'max_price'] = tup[2]
-            full_stock_df.at[i, 'price_rate'] = tup[3]
-            full_stock_df.at[i, 'vol_sum_pos'] = tup[4]
-            full_stock_df.at[i, 'vol_sum_neg'] = tup[5]
-            full_stock_df.at[i, 'vol_rate'] = tup[6]
-            full_stock_df.at[i, 'vol_price_rate'] = tup[7]
+            self.full_stock_df.at[i, 'cur_price'] = tup[1]
+            self.full_stock_df.at[i, 'max_price'] = tup[2]
+            self.full_stock_df.at[i, 'price_rate'] = tup[3]
+            self.full_stock_df.at[i, 'vol_sum_pos'] = tup[4]
+            self.full_stock_df.at[i, 'vol_sum_neg'] = tup[5]
+            self.full_stock_df.at[i, 'vol_rate'] = tup[6]
+            self.full_stock_df.at[i, 'vol_price_rate'] = tup[7]
             print('{0}-------->{1}'.format(str(i), tup))
 
         # 按照阳量阴量比排序
-        full_stock_df.sort_values('vol_price_rate', inplace=True, ascending=False)
+        self.full_stock_df.sort_values('vol_price_rate', inplace=True, ascending=False)
 
-        self.print_to_excel(full_stock_df)
+        self.print_to_excel(self.full_stock_df)
 
         print("end")
 
