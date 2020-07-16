@@ -129,3 +129,4 @@ dmypy.json
 .pyre/
 *.xls
 /Tushare_test/.idea/
+*.DS_Store
