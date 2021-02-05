@@ -1,8 +1,10 @@
 import matplotlib.pyplot as plt
+import matplotlib.dates as mdates
 
 from folder_utility import create_folder
+import font_utility
 
-plt.rcParams['font.sans-serif'] = ['Arial Unicode MS']
+plt.rcParams['font.sans-serif'] = [font_utility.select_chinese_font_by_os()]
 plt.rcParams['axes.unicode_minus'] = False
 
 
@@ -43,7 +45,14 @@ def plot_2_data_frame_in_one_figure(s_l, s_r, title, sub_folder_name,
     ax.set_xlabel(x_label)
     ax.set_ylabel(y_label_l)
     ax.right_ax.set_ylabel(y_label_r)
-    ax.grid(ls='--', axis='both', which='both')
+    # 修改刻度定位器
+    months = mdates.MonthLocator()  # every month
+    years = mdates.YearLocator()  # every year
+    ax.xaxis.set_major_locator(years)
+    ax.xaxis.set_minor_locator(months)
+    ax.grid(color='red', ls='-.')
+    ax.grid(which='minor', axis='both',
+            color='orangered', linewidth=0.25, ls='-.')
     ax.figure.autofmt_xdate()
 
     # 存储在启动文件所在路径，例如 application 为启动路径
