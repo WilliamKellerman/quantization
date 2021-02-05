@@ -1,9 +1,5 @@
 import matplotlib.pyplot as plt
 import numpy as np
-import pandas as pd
-import tushare as ts
-import datetime
-import fund_charactor_study
 
 date1 = np.arange(start=0.01, stop=np.e, step=0.01)
 date2 = np.arange(start=0.01, stop=np.e, step=0.5)
@@ -32,26 +28,28 @@ def plot_2_series_in_same_figure(x1, y1, x2, y2):
 
 
 def point_df_test():
-    start_date = '20100101'
-    now = datetime.datetime.today().strftime('%Y%m%d')
-    df_price = ts.pro_bar(ts_code='601318.SH', adj='qfq', start_date=start_date, end_date=now, freq='M')
-    stock_price_df = df_price[['trade_date', 'close']]
-    stock_price_df = stock_price_df.copy()
-    stock_price_df['date'] = stock_price_df.apply(
-        lambda r: datetime.datetime.strptime(r['trade_date'], '%Y%m%d').date(), axis='columns')
-    stock_price_df = stock_price_df[['date', 'close']]
+    plt.figure()
+    ax = plt.gca()
+    # 修改刻度定位器
+    ax.xaxis.set_major_locator(plt.MultipleLocator(1))
+    ax.xaxis.set_minor_locator(plt.MultipleLocator(0.1))
+    ax.yaxis.set_major_locator(plt.MultipleLocator(250))
+    ax.yaxis.set_minor_locator(plt.MultipleLocator(50))
 
-    ax = stock_price_df.plot(x='date')
-    # df_2.plot(ax=ax, secondary_y=True)
+    ax.grid(which='major', axis='both',
+            color='orangered', linewidth=0.75)
+    ax.grid(which='minor', axis='both',
+            color='orangered', linewidth=0.25)
 
-    ax.figure.autofmt_xdate()
-
+    # 绘制曲线
+    y = [1, 10, 100, 1000, 100, 10, 1]
+    plt.plot(y, 'o-', color='dodgerblue')
     plt.show()
 
     print('end')
 
 
-plot_2_series_in_same_figure(x1=date1, y1=price, x2=date2, y2=vol)
-# point_df_test()
+# plot_2_series_in_same_figure(x1=date1, y1=price, x2=date2, y2=vol)
+point_df_test()
 
 print('end')

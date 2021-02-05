@@ -44,7 +44,7 @@ def get_stock_price_vs_stock_hold_plot_by_series(fund_code: str, fund_name: str)
 # 获取基金维度的平均持股周期
 def get_stock_price_vs_stock_hold_from_fund_list():
     fund_list = [
-        ('169101.OF', '东证睿丰'),
+        # ('169101.OF', '东证睿丰'),
         ('007119.OF', '睿远成长价值A'),
         # ('001112.OF', '东方红中国优势'),
         # ('001985.OF', '富国低碳新经济A'),
