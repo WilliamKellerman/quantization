@@ -130,3 +130,9 @@ dmypy.json
 *.xls
 /Tushare_test/.idea/
 *.DS_Store
+
+# 自定义
+/Wind_data/.idea/
+*.*
+
+*.png
