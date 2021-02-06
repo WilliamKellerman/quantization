@@ -46,8 +46,8 @@ def plot_2_data_frame_in_one_figure(s_l, s_r, title, sub_folder_name,
     ax.set_ylabel(y_label_l)
     ax.right_ax.set_ylabel(y_label_r)
     # 修改刻度定位器
-    year_locator = mdates.YearLocator()  # 每年
-    season_locator = mdates.MonthLocator(bymonth=[1, 4, 7, 10], bymonthday=1)  # 每季度第1日
+    year_locator = mdates.YearLocator(month=12, day=31)  # 每年最后一天
+    season_locator = mdates.MonthLocator(bymonth=[3, 6, 9, 12], bymonthday=-1)  # 每季度最后一天
     ax.xaxis.set_major_locator(year_locator)
     ax.xaxis.set_minor_locator(season_locator)
     ax.grid(which='major', color='red', ls='-.')
