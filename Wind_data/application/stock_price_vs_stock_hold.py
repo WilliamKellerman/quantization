@@ -33,6 +33,7 @@ def get_stock_price_vs_stock_hold_plot_by_series(fund_code: str, fund_name: str)
         stock_hold_df.index = stock_hold_df.apply(lambda r: datetime.datetime.strptime(r['格式日期'], '%Y%m%d').date(),
                                                   axis='columns')
         stock_hold_s = stock_hold_df['持仓']
+        stock_hold_s.fillna(0.0, inplace=True)
 
         # 画图
         plot_utility.plot_2_data_frame_in_one_figure(s_l=stock_hold_s, s_r=stock_price_s,
