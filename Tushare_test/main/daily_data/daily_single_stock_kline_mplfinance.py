@@ -8,8 +8,8 @@ import matplotlib.pyplot as plt
 ts.set_token('4815a591b35b6008893f76680efc01b000929579b688ad33449d9888')
 
 
-def get_stock_price_df(stock_code: str, start_date: str, end_date: str) -> pd.DataFrame:
-    price_df = ts.pro_bar(ts_code=stock_code, adj='qfq', start_date=start_date, end_date=end_date, freq='M')
+def get_stock_price_df(stock_code: str, start_date: str, end_date: str, freq='M') -> pd.DataFrame:
+    price_df = ts.pro_bar(ts_code=stock_code, adj='qfq', start_date=start_date, end_date=end_date, freq=freq)
     # price_df = pro.price_df(ts_code='600958.SH', start_date='20200101', end_date='20210130')
 
     price_df.info()
@@ -30,6 +30,7 @@ def get_stock_price_df(stock_code: str, start_date: str, end_date: str) -> pd.Da
 #  终极解决方案：通过数据插值方式，将持仓量插值到每个月一个点
 # 参考 https://qdhhkj.blog.csdn.net/article/details/105783640
 # https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.resample.html
+# 数据变频，聚合与插值 https://blog.csdn.net/starter_____/article/details/81437626
 def add_plot_test():
     now = datetime.datetime.today().strftime('%Y%m%d')
     df_1 = get_stock_price_df(stock_code='600958.SH', start_date='20160101', end_date=now)
@@ -41,10 +42,24 @@ def add_plot_test():
     print('end')
 
 
-# TODO: CHAIFENG 通过 marketcolors 和 mpf_style，将K线画成符合中国特色的红涨绿跌的形式
+# 试验发现，mplfinance画k线，
+# show_nontrading=False 横轴只会简单依据数据点画图，当横轴的时间密度不一致时，也不会主动放缩调整。
+# show_nontrading=True 当横轴的时间密度不一致时，不影响画图效果。
+def df_concat_test():
+    df_1 = get_stock_price_df(stock_code='600958.SH', start_date='20160101', end_date='20170101', freq='M')
+    df_2 = get_stock_price_df(stock_code='600958.SH', start_date='20200101', end_date='20210101', freq='W')
+
+    df = pd.concat([df_1, df_2])
+    mpf.plot(df, type='candle', volume=True, style='yahoo', show_nontrading=True)
+
+    print('end')
+
+
+# TODO: CHAIFENG
+#  1、通过 marketcolors 和 mpf_style，将K线画成符合中国特色的红涨绿跌的形式
 #  参考 https://qdhhkj.blog.csdn.net/article/details/105783640
 #  https://github.com/matplotlib/mplfinance/blob/master/examples/using_lines.ipynb
-#  画网格：x major：年  minor：季度
+#  2、画网格：x major：年  minor：季度
 def style_test():
     now = datetime.datetime.today().strftime('%Y%m%d')
     df_1 = get_stock_price_df(stock_code='002415.SZ', start_date='20160101', end_date=now)
@@ -61,5 +76,6 @@ def style_test():
 
 
 # add_plot_test()
-style_test()
+# style_test()
+df_concat_test()
 print('end')
