@@ -13,6 +13,3 @@ def create_folder(folder_name):
 
     if not folder_name_exist:
         os.makedirs(folder_name)
-
-
-create_folder('./pictures/aaa')
