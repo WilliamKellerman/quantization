@@ -9,7 +9,7 @@ import single_fund_stock_hold
 def get_stock_price_vs_stock_hold_plot_by_series(fund_code: str, fund_name: str):
     start_date = '20100101'
     now = datetime.datetime.today().strftime('%Y%m%d')
-    fund_df = single_fund_stock_hold.get_one_fund_all_season_stock_hold_vol(
+    fund_df = single_fund_stock_hold.get_one_fund_all_season_stock_hold_vol_current_only(
         fund_code=fund_code, start_date=start_date, end_date=now)
 
     for index, row in fund_df.iterrows():
@@ -46,10 +46,14 @@ def get_stock_price_vs_stock_hold_plot_by_series(fund_code: str, fund_name: str)
 def get_stock_price_vs_stock_hold_from_fund_list():
     fund_list = [
         # ('169101.OF', '东证睿丰'),
-        ('007119.OF', '睿远成长价值A'),
+        # ('007119.OF', '睿远成长价值A'),
+        # ('008969.OF', '睿远均衡价值A'),
         # ('001112.OF', '东方红中国优势'),
         # ('001985.OF', '富国低碳新经济A'),
         # ('002803.OF', '东方红沪港深'),
+        # ('501049.OF', '东方红睿玺'),
+        # ('169102.OF', '东方红睿阳'),
+        # ('501054.OF', '东方红睿泽'),
         # ('004424.OF', '汇添富文体娱乐主'),
         # ('005028.OF', '鹏华研究精选'),
         # ('005450.OF', '华夏稳盛'),
@@ -68,6 +72,11 @@ def get_stock_price_vs_stock_hold_from_fund_list():
         # ('009576.OF', '东方红智远三年持有'),
         # ('163406.OF', '兴全合润'),
         # ('519066.OF', '汇添富蓝筹稳健'),
+        # ('001725.OF', '汇添富高端制造证券投资基金'),
+        # ('005802.OF', '汇添富智能制造股票证券投资基金'),
+        # ('320007.OF', '诺安成长混合'),
+        ('004997.OF', '广发高端制造A'),
+
     ]
 
     df_base = pd.DataFrame(data=fund_list, columns=['基金代码', '基金名称'])
