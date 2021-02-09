@@ -1,3 +1,4 @@
+import excel_utility
 from utility import excel_utility
 from wind_api import wind_base_api
 import pandas as pd
@@ -11,10 +12,7 @@ import pandas as pd
 """
 
 
-def init_search_index():
-    report_date_this_season = '20201231'
-    report_date_pre_season = '20200930'
-
+def get_branch1_fund_list():
     fund_list = [
         ('007119.OF', '睿远成长价值A'),
         ('001112.OF', '东方红中国优势'),
@@ -39,7 +37,7 @@ def init_search_index():
         # ('163406.OF', '兴全合润'),
         # ('519066.OF', '汇添富蓝筹稳健'),
     ]
-    return report_date_this_season, report_date_pre_season, fund_list
+    return fund_list
 
 
 # 单只基金两季重仓
@@ -71,27 +69,57 @@ def get_one_fund_two_season_heavy_stock_hold(fund_code, fund_name, report_date_t
     return single_fund_df_merged
 
 
-# 基金列表重仓
-def get_all_fund_heavy_stock_hold():
+# 基金列表重仓(第一营业部精选)
+def get_branch1_all_fund_heavy_stock_hold():
     fund_hold_list = []
-    report_date_this_season, report_date_pre_season, fund_list = init_search_index()
+    report_date_this_season = '20201231'
+    report_date_pre_season = '20200930'
+    fund_list = get_branch1_fund_list()
     for fund in fund_list:
         fund_code = fund[0]
         fund_name = fund[1]
         # 查询连续2季报表
-        single_fund_hold = get_one_fund_two_season_heavy_stock_hold(fund_code=fund_code,
-                                                                    fund_name=fund_name,
-                                                                    report_date_this_season=report_date_this_season,
-                                                                    report_date_pre_season=report_date_pre_season)
+        try:
+            single_fund_hold = get_one_fund_two_season_heavy_stock_hold(fund_code=fund_code,
+                                                                        fund_name=fund_name,
+                                                                        report_date_this_season=report_date_this_season,
+                                                                        report_date_pre_season=report_date_pre_season)
 
-        fund_hold_list.append(single_fund_hold)
-        # print(single_pd)
+            fund_hold_list.append(single_fund_hold)
+        except Exception:
+            continue
 
-    return pd.concat(fund_hold_list)
+    all_data_pd = pd.concat(fund_hold_list)
+    excel_utility.append_to_new_sheet(all_data_pd, 'D:/demos/multi_sheet_output.xlsx',
+                                      sheet_name='基金持仓变动')
+    return
 
 
-all_data_pd = get_all_fund_heavy_stock_hold()
-excel_utility.append_to_new_sheet(all_data_pd, 'D:/demos/multi_sheet_output.xlsx',
-                                  sheet_name='基金持仓变动')
+# 基金列表重仓(财富部大列表)
+def get_caifu_all_fund_heavy_stock_hold():
+    fund_hold_list = []
+    report_date_this_season = '20201231'
+    report_date_pre_season = '20200930'
 
+    fund_df = excel_utility.read_caifu_2021_products_xls(file_path='./data/2021产品列表.xlsx')
+    for index, row in fund_df.iterrows():
+        fund_code = row['基金代码']
+        fund_name = row['基金名称']
+        # 查询连续2季报表
+        try:
+            single_fund_hold = get_one_fund_two_season_heavy_stock_hold(fund_code=fund_code,
+                                                                        fund_name=fund_name,
+                                                                        report_date_this_season=report_date_this_season,
+                                                                        report_date_pre_season=report_date_pre_season)
+
+            fund_hold_list.append(single_fund_hold)
+        except Exception:
+            continue
+    all_data_pd = pd.concat(fund_hold_list)
+    excel_utility.append_to_new_sheet(all_data_pd, './data/2021产品列表_结果.xlsx',
+                                      sheet_name='基金持仓变动')
+    return
+
+
+get_caifu_all_fund_heavy_stock_hold()
 print('end')
