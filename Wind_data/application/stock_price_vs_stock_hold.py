@@ -42,6 +42,51 @@ def get_stock_price_vs_stock_hold_plot_by_series(fund_code: str, fund_name: str)
                                                      sub_folder_name=fund_name)
 
 
+# 获取单只基金的所有历史持仓股票 "基金持仓 vs 股价k线" 图
+def get_stock_price_kline_vs_stock_hold_plot(fund_code: str, fund_name: str):
+    start_date = '20100101'
+    now = datetime.datetime.today().strftime('%Y%m%d')
+    fund_df = single_fund_stock_hold.get_one_fund_all_season_stock_hold_vol_current_only(
+        fund_code=fund_code, start_date=start_date, end_date=now)
+
+    for index, row in fund_df.iterrows():
+        stock_code = row['股票代码']
+        stock_name = row['股票名称']
+
+        # 加工股价数据 df_price
+        df_price = ts.pro_bar(ts_code=stock_code, adj='qfq', start_date=start_date, end_date=now, freq='M')
+        if df_price is None:
+            print(stock_code + stock_name + "：无行情数据")
+            continue
+        df_price.drop(columns=['ts_code', 'pre_close', 'change', 'pct_chg', 'amount'], inplace=True)
+        df_price.columns = ['trade_date', 'close', 'open', 'high', 'low', 'volume']
+        df_price['日期'] = df_price.apply(lambda r: datetime.datetime.strptime(r['trade_date'], '%Y%m%d'), axis='columns')
+
+        # 加工基金持仓数据 df_stock_hold
+        row = row.copy()
+        row.drop(labels=['股票代码', '股票名称'], inplace=True)
+        stock_hold_df = pd.DataFrame({'持仓': row})
+        stock_hold_df = stock_hold_df.rename(index=pd.Timestamp)
+        stock_hold_s = stock_hold_df['持仓']
+        stock_hold_s.fillna(0.0, inplace=True)
+        stock_hold_s = stock_hold_s.resample('D').asfreq().interpolate()
+        df_stock_hold = pd.DataFrame({'持仓': stock_hold_s, '日期': stock_hold_s.index})
+        df_stock_hold = df_stock_hold.reset_index()
+
+        # 将持仓拟合日线 与 股价月线 merge
+        df_merge = df_price.merge(df_stock_hold, how='left', on='日期')
+        df_merge.index = df_merge['日期']
+        df_merge = df_merge.rename(index=pd.Timestamp)
+        df_merge = df_merge.sort_index(ascending=True)
+        series_hold = df_merge['持仓']
+        series_hold = series_hold.sort_index(ascending=True)
+
+        # 画图
+        plot_utility.plot_kline_with_hold(s_hold=series_hold, df_price=df_merge,
+                                          title=fund_name + '---' + stock_name + '[' + stock_code + ']',
+                                          y_label='价格', y_label_lower='成交量')
+
+
 # 获取基金维度的平均持股周期
 def get_stock_price_vs_stock_hold_from_fund_list():
     fund_list = [
@@ -80,9 +125,10 @@ def get_stock_price_vs_stock_hold_from_fund_list():
     ]
 
     df_base = pd.DataFrame(data=fund_list, columns=['基金代码', '基金名称'])
-    df_base.apply(lambda row: get_stock_price_vs_stock_hold_plot_by_series(row['基金代码'], row['基金名称']), axis='columns')
+    df_base.apply(lambda row: get_stock_price_kline_vs_stock_hold_plot(row['基金代码'], row['基金名称']), axis='columns')
 
 
+# get_stock_price_kline_vs_stock_hold_plot('169101.OF', '东证睿丰')
 get_stock_price_vs_stock_hold_from_fund_list()
 # get_stock_price_vs_stock_hold_plot_by_series('169101.OF', '东证睿丰')
 print('end')

@@ -1,11 +1,12 @@
 import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
-
+import mplfinance as mpf
 from folder_utility import create_folder
 import font_utility
 
 plt.rcParams['font.sans-serif'] = [font_utility.select_chinese_font_by_os()]
 plt.rcParams['axes.unicode_minus'] = False
+style = mpf.make_mpf_style(base_mpf_style='yahoo', rc={'font.family': 'SimHei'})
 
 
 def plot_2_series_in_one_figure(x1, y1, x2, y2, title, y1_label, y2_label, sub_folder_name, x_label='日期'):
@@ -60,6 +61,13 @@ def plot_2_data_frame_in_one_figure(s_l, s_r, title, sub_folder_name,
     create_folder(path)
     plt.savefig(path + '/' + title + '.png')
     plt.close()
+
+
+def plot_kline_with_hold(s_hold, df_price, title, y_label, y_label_lower):
+    # 绘图
+    add_plot = mpf.make_addplot(s_hold, type='line', secondary_y='auto')
+    mpf.plot(df_price, type='candle', volume=True, style=style, title=title, addplot=add_plot,
+             ylabel=y_label, ylabel_lower=y_label_lower)
 
 
 print('end')
