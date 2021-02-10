@@ -50,6 +50,7 @@ def test_merge_data_get_real_date():
     pg_1.index = pg_1['日期']
     pg_1 = pg_1.rename(index=pd.Timestamp)
     pg_2 = pg_1['持仓']
+    # TODO: 持仓左侧（或右侧）非0，拟合的函数有缺失，应保证左侧为0，右侧视情况
     series_m = pg_2.resample('D').asfreq().interpolate()
     df_w = pd.DataFrame({'持仓': series_m})
     df_w = df_w.reset_index()
@@ -60,6 +61,9 @@ def test_merge_data_get_real_date():
     price_df['日期'] = price_df.apply(lambda r: datetime.datetime.strptime(r['trade_date'], '%Y%m%d'), axis='columns')
     price_df = price_df.reset_index()
 
+    # TODO: 用 right join，仅保留每月线，
+    #  理由1 日线都是拟合出来的，没有意义, 且占用存储
+    #  理由2 price_DF, 持仓_DF, 数据时间跨度不一样，join之后，日线数据和月线数据混合，mplfinance画出的图只会简单数点，不缺分精度
     df_new = pd.merge(left=df_w, right=price_df, how='outer', on='日期')
     df_new.index = df_new['日期']
     df_new = df_new.rename(index=pd.Timestamp)
