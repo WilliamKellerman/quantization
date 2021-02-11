@@ -8,7 +8,7 @@ import requests
 import single_fund_season_report_data as md
 
 MOCK_MODE = True
-SESSION_ID = '743b46dbada142519e0f9d0e246b0361'
+SESSION_ID = '834c45fe1ad44214af5f1b56d36deac3'
 HOST = '114.80.154.45'
 
 
@@ -80,10 +80,10 @@ def get_one_fund_heavy_stock_hold(fund_code: str, report_date_list: list) -> pd.
                 single_fund_df = pd.DataFrame(data)
             else:
                 print(text)
-                raise Exception("Invalid response" + text)
+                raise Exception("Invalid response: Result is None")
         else:
             print(response.status_code)
-            raise Exception("Invalid response" + response.status_code)
+            raise Exception("Invalid response, status_code=" + response.status_code)
 
     # 股票代码 "StockCode": "002271.SZ",
     # 股票名称  "StockName": "东方雨虹",
