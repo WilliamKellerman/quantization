@@ -23,7 +23,9 @@ def get_stock_price_vs_stock_hold_plot_by_series(fund_code: str, fund_name: str)
             continue
         df_price.index = df_price.apply(lambda r: datetime.datetime.strptime(r['trade_date'], '%Y%m%d').date(),
                                         axis='columns')
+        df_price.sort_index(inplace=True)
         stock_price_s = df_price['close']
+        stock_vol_s = df_price['vol']
 
         # 加工基金持仓数据 stock_hold_s
         row = row.copy()
@@ -36,15 +38,16 @@ def get_stock_price_vs_stock_hold_plot_by_series(fund_code: str, fund_name: str)
         stock_hold_s.fillna(0.0, inplace=True)
 
         # 画图
-        plot_utility.plot_2_data_frame_in_one_figure(s_l=stock_hold_s, s_r=stock_price_s,
-                                                     title=fund_name + '---' + stock_name + '[' + stock_code + ']',
-                                                     x_label='日期', y_label_l='基金持仓(股)', y_label_r='股价(元)',
-                                                     sub_folder_name=fund_name)
+        plot_utility.plot_3_series_in_one_figure(s_l=stock_price_s, s_r=stock_hold_s, s_low=stock_vol_s,
+                                                 title=fund_name + '---' + stock_name + '[' + stock_code + ']',
+                                                 x_label='日期', y_label_l='股价(元)', y_label_r='基金持仓(股)',
+                                                 y_label_low='成交量(股)',
+                                                 sub_folder_name=fund_name)
 
 
 # 获取单只基金的所有历史持仓股票 "基金持仓 vs 股价k线" 图
 def get_stock_price_kline_vs_stock_hold_plot(fund_code: str, fund_name: str):
-    start_date = '20100101'
+    start_date = '20200101'
     now = datetime.datetime.today().strftime('%Y%m%d')
     fund_df = single_fund_stock_hold.get_one_fund_all_season_stock_hold_vol_current_only(
         fund_code=fund_code, start_date=start_date, end_date=now)
@@ -125,7 +128,7 @@ def get_stock_price_vs_stock_hold_from_fund_list():
     ]
 
     df_base = pd.DataFrame(data=fund_list, columns=['基金代码', '基金名称'])
-    df_base.apply(lambda row: get_stock_price_kline_vs_stock_hold_plot(row['基金代码'], row['基金名称']), axis='columns')
+    df_base.apply(lambda row: get_stock_price_vs_stock_hold_plot_by_series(row['基金代码'], row['基金名称']), axis='columns')
 
 
 # get_stock_price_kline_vs_stock_hold_plot('169101.OF', '东证睿丰')

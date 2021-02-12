@@ -35,8 +35,8 @@ def plot_2_series_in_one_figure(x1, y1, x2, y2, title, y1_label, y2_label, sub_f
     plt.close()
 
 
-def plot_2_data_frame_in_one_figure(s_l, s_r, title, sub_folder_name,
-                                    y_label_l, y_label_r, x_label='日期'):
+def plot_2_series_in_one_figure(s_l, s_r, title, sub_folder_name,
+                                y_label_l, y_label_r, x_label='日期'):
     # 绘图
     ax = s_l.plot(title=title)
     s_r.plot(ax=ax, secondary_y=True)
@@ -54,6 +54,60 @@ def plot_2_data_frame_in_one_figure(s_l, s_r, title, sub_folder_name,
     ax.grid(which='minor', color='orangered', linewidth=0.25, ls='-.')
     ax.figure.autofmt_xdate()
 
+    # 存储在启动文件所在路径，例如 application 为启动路径
+    # plt.show()
+    path = './pictures/' + sub_folder_name
+    create_folder(path)
+    plt.savefig(path + '/' + title + '.png')
+    plt.close()
+
+
+# 绘制3个series在上下两幅图，上图2个series，下图1个
+def plot_3_series_in_one_figure(s_l, s_r, s_low,
+                                title, sub_folder_name,
+                                y_label_l, y_label_r, y_label_low, x_label='日期'):
+    # 创建绘图对象和2个坐标轴
+    fig = plt.figure(figsize=(12, 6))
+    left, width = 0.1, 0.8
+    ax = fig.add_axes([left, 0.4, width, 0.5])  # left, bottom, width, height
+    ax_low = fig.add_axes([left, 0.2, width, 0.2], sharex=ax)  # 共享ax1轴
+    # fig, axes = plt.subplots(nrows=2, ncols=1, sharex=True)
+    # ax = axes[0]
+    # ax_low = axes[1]
+    plt.setp(ax.get_xticklabels(), visible=False)  # 使x轴刻度文本不可见，因为共享，不需要显示
+
+    # 绘图
+    s_l.plot(ax=ax, kind='line', title=title)
+    s_r.plot(ax=ax, kind='line', secondary_y=True)
+    s_low.plot(ax=ax_low, kind='line')
+    ax_low.fill_between(x=s_low.index, y1=s_low.values, y2=0)
+
+    # 坐标轴极限与标签
+    ax.set_ylim([0, s_l.max() * 1.1])
+    ax.right_ax.set_ylim([0, s_r.max() * 1.1])
+    ax.set_ylabel(y_label_l)
+    ax.right_ax.set_ylabel(y_label_r)
+    ax_low.set_ylim([0, s_low.max() * 1.1])
+    ax_low.yaxis.tick_right()
+    ax_low.yaxis.set_label_position('right')
+    ax_low.set_ylabel(y_label_low)
+    ax_low.set_xlabel(xlabel=x_label)
+
+    # 坐标轴主辅刻度
+    year_locator = mdates.YearLocator(month=12, day=31)  # 每年最后一天
+    season_locator = mdates.MonthLocator(bymonth=[3, 6, 9, 12], bymonthday=-1)  # 每季度最后一天
+    ax.xaxis.set_major_locator(year_locator)
+    ax.xaxis.set_minor_locator(season_locator)
+    ax.grid(which='major', color='red', ls='-.')
+    ax.grid(which='minor', color='orangered', linewidth=0.25, ls='-.')
+
+    ax_low.xaxis.set_major_locator(year_locator)
+    ax_low.xaxis.set_minor_locator(season_locator)
+    ax_low.grid(which='major', color='red', ls='-.')
+    ax_low.grid(which='minor', color='orangered', linewidth=0.25, ls='-.')
+    # ax_low.figure.autofmt_xdate()
+    for label in ax_low.get_xticklabels(which='major'):
+        label.set_rotation(30)
     # 存储在启动文件所在路径，例如 application 为启动路径
     # plt.show()
     path = './pictures/' + sub_folder_name

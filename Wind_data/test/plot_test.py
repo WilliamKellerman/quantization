@@ -1,5 +1,6 @@
 import matplotlib.pyplot as plt
 import numpy as np
+import pandas as pd
 
 date1 = np.arange(start=0.01, stop=np.e, step=0.01)
 date2 = np.arange(start=0.01, stop=np.e, step=0.5)
@@ -49,7 +50,27 @@ def point_df_test():
     print('end')
 
 
+def plot_sub_plot():
+    # fig = plt.figure()
+    dti = pd.date_range(start='20100101', periods=8, freq='Q')
+    # df = pd.DataFrame(np.random.randn(8, 4), index=list('12345678'), columnss=list('ABCD'))
+
+    df = pd.DataFrame(np.random.randn(8, 4), index=dti, columns=list('ABCD'))
+
+    fig, axes = plt.subplots(nrows=2, ncols=1) #, sharex=True)
+    ax = axes[0]
+    ax_low = axes[1]
+    plt.setp(ax.get_xticklabels(), visible=False)  # 使x轴刻度文本不可见，因为共享，不需要显示
+    # add_subplot(1, 1, 1) 意思：建立划分1行1列的子图，取第1幅子图
+    # ax = fig.add_subplot(2, 1, 1)
+    # ax_low = fig.add_subplot(2, 1, 2)
+    # 绘图
+    df.A.plot(ax=ax, kind='line')
+    df.B.plot(ax=ax_low, kind='bar')
+
+    print('end')
+
 # plot_2_series_in_same_figure(x1=date1, y1=price, x2=date2, y2=vol)
-point_df_test()
+plot_sub_plot()
 
 print('end')
