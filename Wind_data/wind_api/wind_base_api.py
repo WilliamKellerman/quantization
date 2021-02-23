@@ -58,64 +58,55 @@ def generate_headers():
     return headers
 
 
-# 单只基金重仓(多季)
-def get_one_fund_heavy_stock_hold(fund_code: str, report_date_list: list) -> pd.DataFrame:
-    print('单只基金重仓(多季)：fund_code is ' + fund_code)
-    single_fund_df = pd.DataFrame
-    if MOCK_MODE:
-        single_fund_df = md.get_mock_fund_data(report_date_list)
-    else:
-        # 拼装url，headers
-        url = generate_fund_heavy_stock_url_header()
-        headers = generate_headers()
-        # 拼装data
-        cmd = '[{"Name":"Common.CloudDynamicPicker","Paras":[{"Key":"command","Value":" Report name=F9_2.Fund.StocInvePortfolio.HeavHeldStockStock23 windCode=[' + fund_code + '] reportDate=[' + ','.join(report_date_list) + '] industryType=[''] sort=[10=asc,2=desc] showcolumnname=all "},{"Key":"digits","Value":4}],"CacheLevel":1,"Async":false}]'
-        data = {'invoke': cmd}
-        response = requests.post(url=url, data=data, headers=headers)
+class WindApi:
+    def __init__(self, fund_code: str, report_date_list: list):
+        self.fund_code = fund_code
+        self.report_date_list = report_date_list
 
-        if 200 == response.status_code:
-            text = json.loads(response.text)
-            if text.get('Result') is not None:
-                data = text.get('Result').get('Data')
-                single_fund_df = pd.DataFrame(data)
-            else:
-                print(text)
-                raise CustomizeException(None, "Invalid response: Result is None")
+    def get_one_fund_heavy_stock_hold(self) -> pd.DataFrame:
+        print('单只基金重仓(多季)：fund_code is ' + self.fund_code)
+        single_fund_df = pd.DataFrame
+        if MOCK_MODE:
+            single_fund_df = md.get_mock_fund_data(self.report_date_list)
         else:
-            raise CustomizeException(response.status_code, 'Invalid response, status_code=')
+            url = generate_fund_heavy_stock_url_header()
+            headers = generate_headers()
+            # 拼装data
+            cmd = '[{"Name":"Common.CloudDynamicPicker","Paras":[{"Key":"command","Value":" Report name=F9_2.Fund.StocInvePortfolio.HeavHeldStockStock23 windCode=[' + \
+                  self.fund_code + '] reportDate=[' + ','.join(self.report_date_list) + \
+                  '] industryType=[''] sort=[10=asc,2=desc] showcolumnname=all "},{"Key":"digits","Value":4}],"CacheLevel":1,"Async":false}]'
+            data = {'invoke': cmd}
+            response = requests.post(url=url, data=data, headers=headers)
 
-    # 股票代码 "StockCode": "002271.SZ",
-    # 股票名称  "StockName": "东方雨虹",
-    # 持仓市值(元)  "MarketValue": 2202471541.2,
-    # 持仓数量  "Share": 57585349,
-    # 占股票市值比(%)  "StockMarketValuePer": 7.9629,
-    # 占基金净值比(%)  "FundNetPer": 7.2357,
-    # 占流通股本比(%)  "TradeableSharePer": 3.4242,
-    # 相对上期增减(%) -> 持仓数量变动比(%)  "PreSub": 159.0662,
-    # 区间涨跌幅  "PerChange": 7.9777,
-    # 持仓数量变动  "PreSubVol": 35357309,
-    # 报告期  "RptDate": "2020-12-31",
-    # 所属行业  "IndustryName": "建筑材料"
-    single_fund_df.rename(columns={'StockCode': '股票代码',
-                                   'StockName': '股票名称',
-                                   'MarketValue': '持仓市值(亿)',
-                                   'Share': '持仓数量',
-                                   'StockMarketValuePer': '占股票市值比(%)',
-                                   'FundNetPer': '占基金净值比(%)',
-                                   'TradeableSharePer': '占流通股本比(%)',
-                                   'PreSub': '持仓数量变动比(%)',
-                                   'PerChange': '股价涨跌幅(%)',
-                                   'PreSubVol': '持仓数量变动',
-                                   'RptDate': '报告期',
-                                   'IndustryName': '所属行业'
-                                   }, inplace=True)
+            if 200 == response.status_code:
+                text = json.loads(response.text)
+                if text.get('Result') is not None:
+                    data = text.get('Result').get('Data')
+                    single_fund_df = pd.DataFrame(data)
+                else:
+                    print(text)
+                    raise CustomizeException(None, "Invalid response: Result is None")
+            else:
+                raise CustomizeException(response.status_code, 'Invalid response, status_code=')
 
-    return single_fund_df
+        single_fund_df.rename(columns={'StockCode': '股票代码',
+                                       'StockName': '股票名称',
+                                       'MarketValue': '持仓市值(亿)',
+                                       'Share': '持仓数量',
+                                       'StockMarketValuePer': '占股票市值比(%)',
+                                       'FundNetPer': '占基金净值比(%)',
+                                       'TradeableSharePer': '占流通股本比(%)',
+                                       'PreSub': '持仓数量变动比(%)',
+                                       'PerChange': '股价涨跌幅(%)',
+                                       'PreSubVol': '持仓数量变动',
+                                       'RptDate': '报告期',
+                                       'IndustryName': '所属行业'
+                                       }, inplace=True)
 
+        return single_fund_df
 
-# 单只基金重仓(单季)
-def get_one_fund_one_season_heavy_stock_hold(fund_code: str, report_date: str) -> list:
-    report_date_list = get_one_fund_heavy_stock_hold(fund_code=fund_code, report_date_list=[report_date])
-    return report_date_list
-
+    # 单只基金重仓(单季)
+    def get_one_fund_one_season_heavy_stock_hold(self) -> list:
+        report_date_list = self.get_one_fund_heavy_stock_hold()
+        return report_date_list
 

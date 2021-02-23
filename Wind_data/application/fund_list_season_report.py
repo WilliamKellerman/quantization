@@ -1,6 +1,5 @@
-import excel_utility
 from utility import excel_utility
-from wind_api import wind_base_api
+from wind_base_api import WindApi
 import pandas as pd
 
 """
@@ -42,10 +41,10 @@ def get_branch1_fund_list():
 
 # 单只基金两季重仓
 def get_one_fund_two_season_heavy_stock_hold(fund_code, fund_name, report_date_this_season, report_date_pre_season):
-    single_fund_df_this_season = wind_base_api.get_one_fund_one_season_heavy_stock_hold(fund_code=fund_code,
-                                                                                        report_date=report_date_this_season)
-    single_fund_df_pre_season = wind_base_api.get_one_fund_one_season_heavy_stock_hold(fund_code=fund_code,
-                                                                                       report_date=report_date_pre_season)
+    wind_base_api_this = WindApi(fund_code, report_date_this_season)
+    wind_base_api_pre = WindApi(fund_code, report_date_pre_season)
+    single_fund_df_this_season = wind_base_api_this.get_one_fund_one_season_heavy_stock_hold()
+    single_fund_df_pre_season = wind_base_api_pre.get_one_fund_one_season_heavy_stock_hold()
 
     single_fund_df_merged = pd.merge(left=single_fund_df_this_season, right=single_fund_df_pre_season,
                                      on=('股票代码', '股票名称'), how='outer',

@@ -1,6 +1,6 @@
 import date_utility
-import wind_base_api
 import pandas as pd
+from wind_base_api import WindApi
 
 
 # 单基金多季度持仓数量汇总
@@ -8,8 +8,8 @@ def get_one_fund_all_season_stock_hold_vol(fund_code: str, start_date: str, end_
     report_date_list = date_utility.generate_season_date_list(start_date=start_date, end_date=end_date)
     report_date_list.sort(reverse=True)
 
-    all_season_long_df = wind_base_api.get_one_fund_heavy_stock_hold(fund_code=fund_code,
-                                                                     report_date_list=report_date_list)
+    wind_base_api = WindApi(fund_code=fund_code, report_date_list=report_date_list)
+    all_season_long_df = wind_base_api.get_one_fund_heavy_stock_hold()
 
     all_season_df = pd.DataFrame
     for report_date in report_date_list:
