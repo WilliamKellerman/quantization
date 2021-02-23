@@ -1,4 +1,4 @@
-def base_exception(self):
+def base_exception_print(self):
     if self.code is None:
         print(self.message)
     else:
@@ -10,7 +10,7 @@ class CustomizeException(Exception):
     def __init__(self, code, message):
         self.code = code
         self.message = message
-        base_exception(self)
+        base_exception_print(self)
 
 
 

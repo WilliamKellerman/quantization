@@ -2,7 +2,7 @@ from customize_exception import CustomizeException
 
 
 def test_customize_exception():
-    y = 1
+    y = 0
     if y > 0:
         raise CustomizeException(404, 'Invalid response, status_code=')
     else:
