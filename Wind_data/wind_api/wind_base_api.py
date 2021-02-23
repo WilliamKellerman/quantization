@@ -1,6 +1,6 @@
 import json
 from urllib.parse import urlencode, ParseResult
-
+from customize_exception import CustomizeException
 import pandas as pd
 import requests
 
@@ -80,10 +80,9 @@ def get_one_fund_heavy_stock_hold(fund_code: str, report_date_list: list) -> pd.
                 single_fund_df = pd.DataFrame(data)
             else:
                 print(text)
-                raise Exception("Invalid response: Result is None")
+                raise CustomizeException(None, "Invalid response: Result is None")
         else:
-            print(response.status_code)
-            raise Exception("Invalid response, status_code=" + response.status_code)
+            raise CustomizeException(response.status_code, 'Invalid response, status_code=')
 
     # 股票代码 "StockCode": "002271.SZ",
     # 股票名称  "StockName": "东方雨虹",
