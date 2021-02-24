@@ -3,74 +3,69 @@ from urllib.parse import urlencode, ParseResult
 from customize_exception import CustomizeException
 import pandas as pd
 import requests
-
-
 import single_fund_season_report_data as md
-
-MOCK_MODE = True
-SESSION_ID = '834c45fe1ad44214af5f1b56d36deac3'
-HOST = '114.80.154.45'
-
-
-def generate_fund_heavy_stock_url_header():
-    # 拼装url
-    # url is http://114.80.154.45/FundCoreWeb/WebService?Name=Common.CloudDynamicPicker&wind.sessionid=2d98e3ffb99f42c2a7e8e5ab31af2d14&_r=0.7139373540625608
-
-    path = '/FundCoreWeb/WebService'
-
-    query_args = {
-        'Name': 'Common.CloudDynamicPicker',
-        'wind.sessionid': SESSION_ID,
-        '_r': '0.7139373540625608'
-    }
-    encoded_args = urlencode(query_args)
-
-    url = ParseResult(scheme='http', netloc=HOST, path=path, params='', query=encoded_args, fragment='').geturl()
-
-    print('url is ' + url)
-
-    return url
-
-
-def generate_headers():
-    # 拼装headers
-    headers = {
-        # 理论上只要'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
-        # 验证发现header里所有参数都可以去掉,
-        'Host': HOST,
-        'wind.sessionid': SESSION_ID,
-        'Accept': 'application/json, text/plain, */*',
-        'Connection': 'keep-alive',
-        'Accept-Language': 'en-us',
-        'Accept-Encoding': 'gzip, deflate',
-        'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
-        'Origin': 'http://' + HOST,
-        # 'Content-Length': '449',
-        'Connection': 'keep-alive',
-        'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_16) AppleWebKit/605.1.15 (KHTML, like Gecko)',
-        'Referer': 'http://' + HOST + '/FundResearchWeb/PublicFundF9/index.html?wind.sessionid=' + SESSION_ID,
-        'Cookie': 'ASP.NET_SessionId=kgqiwa55vg2o5l550qvir3qn; '
-                  'curSearchUserType={%22result%22:[]}; '
-                  'isBig5ToGb=undefined; langType=CHS; '
-                  'tipsArrayNew=[%22%E6%B1%87%E4%B8%B0%E6%99%8B%E4%BF%A1%22]; '
-                  'versionId=206100000'
-    }
-    return headers
 
 
 class WindApi:
     def __init__(self, fund_code: str, report_date_list: list):
         self.fund_code = fund_code
         self.report_date_list = report_date_list
+        self.__MOCK_MODE = True
+        self.__SESSION_ID = '834c45fe1ad44214af5f1b56d36deac3'
+        self.__HOST = '114.80.154.45'
+
+    def __generate_fund_heavy_stock_url_header(self):
+        # 拼装url
+        # url is http://114.80.154.45/FundCoreWeb/WebService?Name=Common.CloudDynamicPicker&wind.sessionid=2d98e3ffb99f42c2a7e8e5ab31af2d14&_r=0.7139373540625608
+
+        path = '/FundCoreWeb/WebService'
+
+        query_args = {
+            'Name': 'Common.CloudDynamicPicker',
+            'wind.sessionid': self.__SESSION_ID,
+            '_r': '0.7139373540625608'
+        }
+        encoded_args = urlencode(query_args)
+
+        url = ParseResult(scheme='http', netloc=self.__HOST, path=path, params='', query=encoded_args, fragment='').geturl()
+
+        print('url is ' + url)
+
+        return url
+
+    def __generate_headers(self):
+        # 拼装headers
+        headers = {
+            # 理论上只要'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
+            # 验证发现header里所有参数都可以去掉,
+            'Host': self.__HOST,
+            'wind.sessionid': self.__SESSION_ID,
+            'Accept': 'application/json, text/plain, */*',
+            'Connection': 'keep-alive',
+            'Accept-Language': 'en-us',
+            'Accept-Encoding': 'gzip, deflate',
+            'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
+            'Origin': 'http://' + self.__HOST,
+            # 'Content-Length': '449',
+            'Connection': 'keep-alive',
+            'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_16) AppleWebKit/605.1.15 (KHTML, like Gecko)',
+            'Referer': 'http://' + self.__HOST + '/FundResearchWeb/PublicFundF9/index.html?wind.sessionid=' + self.__SESSION_ID,
+            'Cookie': 'ASP.NET_SessionId=kgqiwa55vg2o5l550qvir3qn; '
+                      'curSearchUserType={%22result%22:[]}; '
+                      'isBig5ToGb=undefined; langType=CHS; '
+                      'tipsArrayNew=[%22%E6%B1%87%E4%B8%B0%E6%99%8B%E4%BF%A1%22]; '
+                      'versionId=206100000'
+        }
+        return headers
 
     def get_one_fund_heavy_stock_hold(self) -> pd.DataFrame:
         print('单只基金重仓(多季)：fund_code is ' + self.fund_code)
         single_fund_df = pd.DataFrame
-        if MOCK_MODE:
+        if self.__MOCK_MODE:
             single_fund_df = md.get_mock_fund_data(self.report_date_list)
         else:
-            url = generate_fund_heavy_stock_url_header()
-            headers = generate_headers()
+            url = self.__generate_fund_heavy_stock_url_header()
+            headers = self.__generate_headers()
             # 拼装data
             cmd = '[{"Name":"Common.CloudDynamicPicker","Paras":[{"Key":"command","Value":" Report name=F9_2.Fund.StocInvePortfolio.HeavHeldStockStock23 windCode=[' + \
                   self.fund_code + '] reportDate=[' + ','.join(self.report_date_list) + \
@@ -109,4 +104,3 @@ class WindApi:
     def get_one_fund_one_season_heavy_stock_hold(self) -> list:
         report_date_list = self.get_one_fund_heavy_stock_hold()
         return report_date_list
-
