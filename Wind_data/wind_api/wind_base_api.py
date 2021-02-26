@@ -14,7 +14,7 @@ class WindApi:
         self.__SESSION_ID = '834c45fe1ad44214af5f1b56d36deac3'
         self.__HOST = '114.80.154.45'
 
-    def __generate_fund_heavy_stock_url_header(self):
+    def __generate_fund_heavy_stock_url(self):
         # 拼装url
         # url is http://114.80.154.45/FundCoreWeb/WebService?Name=Common.CloudDynamicPicker&wind.sessionid=2d98e3ffb99f42c2a7e8e5ab31af2d14&_r=0.7139373540625608
 
@@ -64,7 +64,7 @@ class WindApi:
         if self.__MOCK_MODE:
             single_fund_df = md.get_mock_fund_data(self.report_date_list)
         else:
-            url = self.__generate_fund_heavy_stock_url_header()
+            url = self.__generate_fund_heavy_stock_url()
             headers = self.__generate_headers()
             # 拼装data
             cmd = '[{"Name":"Common.CloudDynamicPicker","Paras":[{"Key":"command","Value":" Report name=F9_2.Fund.StocInvePortfolio.HeavHeldStockStock23 windCode=[' + \
