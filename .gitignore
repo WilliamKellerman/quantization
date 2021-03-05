@@ -127,13 +127,17 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
-*.xls
-/Tushare_test/.idea/
-*.DS_Store
+
 
 # 自定义
-/Wind_data/.idea/
-*.*
-
-*.png
 .idea/
+/Wind_data/.idea/
+/Tushare_test/.idea/
+
+
+
+*.DS_Store
+~$*.*
+*.xls
+*.xlsx
+*.png
