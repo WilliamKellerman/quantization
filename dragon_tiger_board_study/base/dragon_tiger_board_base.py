@@ -17,7 +17,6 @@ class DragonTigerBoardBase:
 
     def __init__(self, date):
         self.date = date
-
         # 初始化元素默认值
         self.order_type = dragon_tiger_board_dict['净成交额']
         self.filter_type = dragon_tiger_board_dict['营业部名称']
@@ -43,17 +42,18 @@ class TradeDateBase:
         self.date = date
 
         # 初始化元素默认值
-        self.day_num = 2    # 从起始日开始获取交易日个数
+        self.day_num = 3    # 从起始日开始获取交易日个数
 
     def __get_trade_date_list_df(self):
         now = datetime.datetime.today().strftime('%Y%m%d')
         date_df = pro.trade_cal(start_date=self.date, end_date=now)
 
-        # 仅获取交易日
+        # 过滤出交易日
         trade_date_df = date_df[date_df['is_open'] == 1]
 
         return trade_date_df
 
+    # 根据自定义天数查询交易日列表
     def get_trade_date_list_by_num(self):
         trade_date_df = self.__get_trade_date_list_df()
 
@@ -63,9 +63,27 @@ class TradeDateBase:
         date_list = []
         i = 0
         for index, row in trade_date_df.iterrows():
+            if i == 0:
+                i = i + 1
+                # 当日数据不要
+                continue
             if i == self.day_num:
                 break
             i = i + 1
             date_list.append(row['cal_date'])
 
         return date_list
+
+    # 查询起始日到今天的交易日列表
+    def get_trade_date_list_to_today(self):
+        trade_date_df = self.__get_trade_date_list_df()
+
+        if len(trade_date_df) < 0:
+            raise CustomizeException(None, '查询起始日到今日之间无交易日')
+
+        date_list = []
+        for index, row in trade_date_df.iterrows():
+            date_list.append(row['cal_date'])
+
+        return date_list
+
