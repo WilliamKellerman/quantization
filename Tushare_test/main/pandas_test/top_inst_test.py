@@ -22,8 +22,8 @@ def test_one_trade_date_top_three_code(date):
 
     df = df[df['exalter'] == '机构专用']
 
-    # df_new = df.groupby('ts_code').sum().sort_values('net_buy', ascending=False).head(3)
-    df_new = df.groupby('ts_code').sum().sort_values('buy_rate', ascending=False).head(3)
+    df_new = df.groupby('ts_code').sum().sort_values('net_buy', ascending=False).head(3)
+    # df_new = df.groupby('ts_code').sum().sort_values('buy_rate', ascending=False).head(3)
 
     return df_new.index
 
@@ -45,7 +45,7 @@ def get_last_two_trade_date(date):
 
 
 def test_top_inst_last_two_trade_date():
-    date = '20210302'
+    date = '20210301'
     trade_date_list = get_last_two_trade_date(date)
 
     last_one_day = trade_date_list[0]
@@ -54,10 +54,10 @@ def test_top_inst_last_two_trade_date():
 
     for code in code_list:
         price_df = ts.pro_bar(ts_code=code, adj='qfq', start_date=last_one_day, end_date=last_two_day, freq='D')
-        open_2 = price_df[price_df['trade_date'] == last_two_day]['open']
-        open_1 = price_df[price_df['trade_date'] == last_one_day]['open']
-        test = open_2.iloc[0] - open_1.iloc[0]
-        print('股票代码：[' + code + '], T+2开盘价 - T+1开盘价：[%.4f' % test + ']')
+        open_t2 = price_df[price_df['trade_date'] == last_two_day]['open']
+        open_t1 = price_df[price_df['trade_date'] == last_one_day]['open']
+        open_different = open_t2.iloc[0] - open_t1.iloc[0]
+        print('股票代码：[' + code + '], T+2开盘价 - T+1开盘价：[%.4f' % open_different + ']')
 
 
 test_top_inst_last_two_trade_date()
