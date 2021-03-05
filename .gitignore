@@ -131,7 +131,7 @@ dmypy.json
 
 # 自定义
 .idea/
-/Wind_data/.idea/
+/mutual_fund_study/.idea/
 /Tushare_test/.idea/
 
 
